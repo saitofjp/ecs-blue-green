@@ -72,7 +72,7 @@ resource "aws_codepipeline" "main" {
       configuration = {
         ApplicationName                = aws_codedeploy_app.main.name
         DeploymentGroupName            = aws_codedeploy_deployment_group.main.deployment_group_name
-        TaskDefinitionTemplateArtifact = "source_output"
+        TaskDefinitionTemplateArtifact = "build_output"
         AppSpecTemplateArtifact        = "source_output"
         Image1ArtifactName             = "build_output"
         Image1ContainerName            = "IMAGE1_NAME"
@@ -143,6 +143,7 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
         Effect = "Allow"
         Action = [
           "codedeploy:CreateDeployment",
+          "codedeploy:GetApplication",
           "codedeploy:GetApplicationRevision",
           "codedeploy:GetDeployment",
           "codedeploy:GetDeploymentConfig",
@@ -274,8 +275,11 @@ resource "aws_iam_role_policy" "codebuild" {
       {
         Effect = "Allow"
         Action = [
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage"
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:CompleteLayerUpload",
+          "ecr:InitiateLayerUpload",
+          "ecr:PutImage",
+          "ecr:UploadLayerPart"
         ]
         Resource = [
           aws_ecr_repository.app.arn,
@@ -308,7 +312,8 @@ resource "aws_codedeploy_deployment_group" "main" {
 
   blue_green_deployment_config {
     deployment_ready_option {
-      action_on_timeout = "CONTINUE_DEPLOYMENT"
+      action_on_timeout    = "STOP_DEPLOYMENT"
+      wait_time_in_minutes = 30
     }
 
     terminate_blue_instances_on_deployment_success {

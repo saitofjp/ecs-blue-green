@@ -10,7 +10,7 @@
           "name": "VERSION",
           "value": "$VERSION"
         }
-      ]
+      ],
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
