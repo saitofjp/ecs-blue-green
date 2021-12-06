@@ -151,8 +151,14 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
         ]
         Resource = [
           aws_codedeploy_app.main.arn,
-          aws_codedeploy_deployment_group.main.arn
+          aws_codedeploy_deployment_group.main.arn,
+          "arn:aws:codedeploy:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:deploymentconfig:${aws_codedeploy_deployment_group.main.deployment_config_name}"
         ]
+      },
+      {
+        Effect   = "Allow"
+        Action   = "ecs:RegisterTaskDefinition"
+        Resource = "*"
       },
       {
         Effect = "Allow"
@@ -161,7 +167,6 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
           "ecs:DescribeTaskDefinition",
           "ecs:DescribeTasks",
           "ecs:ListTasks",
-          "ecs:RegisterTaskDefinition",
           "ecs:UpdateService"
         ]
         Resource = [
@@ -172,7 +177,7 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
       },
       {
         Effect   = "Allow"
-        Action   = "ima:PassRole"
+        Action   = "iam:PassRole"
         Resource = data.aws_iam_role.ecsTaskExecutionRole.arn
       }
     ]
