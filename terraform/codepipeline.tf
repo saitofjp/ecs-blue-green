@@ -197,13 +197,19 @@ resource "aws_codebuild_project" "main" {
   }
 
   environment {
-    compute_type = "BUILD_GENERAL1_SMALL"
-    image        = "aws/codebuild/amazonlinux2-x86_64-standard:3.0"
-    type         = "LINUX_CONTAINER"
+    compute_type    = "BUILD_GENERAL1_SMALL"
+    image           = "aws/codebuild/amazonlinux2-x86_64-standard:3.0"
+    type            = "LINUX_CONTAINER"
+    privileged_mode = true
 
     environment_variable {
       name  = "EXECUTION_ROLE_ARN"
       value = data.aws_iam_role.ecsTaskExecutionRole.arn
+    }
+
+    environment_variable {
+      name  = "NGINX_IMAGE_URI"
+      value = aws_ecr_repository.nginx.repository_url
     }
   }
 
@@ -258,6 +264,23 @@ resource "aws_iam_role_policy" "codebuild" {
         "Resource" = [
           aws_s3_bucket.codepipeline_artifact.arn,
           "${aws_s3_bucket.codepipeline_artifact.arn}/*"
+        ]
+      },
+      {
+        Effect   = "Allow"
+        Action   = "ecr:GetAuthorizationToken"
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:InitiateLayerUpload"
+        ]
+        Resource = [
+          aws_ecr_repository.app.arn,
+          aws_ecr_repository.nginx.arn
         ]
       }
     ]
