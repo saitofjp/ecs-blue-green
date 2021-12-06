@@ -22,7 +22,7 @@
     },
     {
       "name": "nginx",
-      "image": "181562662531.dkr.ecr.ap-northeast-1.amazonaws.com/ecs-blue-green-nginx",
+      "image": "$NGINX_IMAGE_URI",
       "essential": true,
       "portMappings": [
         {

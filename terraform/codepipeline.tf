@@ -275,8 +275,7 @@ resource "aws_iam_role_policy" "codebuild" {
         Effect = "Allow"
         Action = [
           "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage",
-          "ecr:InitiateLayerUpload"
+          "ecr:BatchGetImage"
         ]
         Resource = [
           aws_ecr_repository.app.arn,
