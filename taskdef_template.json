@@ -2,27 +2,8 @@
   "executionRoleArn": "$EXECUTION_ROLE_ARN",
   "containerDefinitions": [
     {
-      "name": "app",
-      "image": "<IMAGE1_NAME>",
-      "essential": true,
-      "environment": [
-        {
-          "name": "VERSION",
-          "value": "$VERSION"
-        }
-      ],
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "options": {
-          "awslogs-group": "/ecs-blue-green/ecs/app",
-          "awslogs-stream-prefix": "app",
-          "awslogs-region": "ap-northeast-1"
-        }
-      }
-    },
-    {
       "name": "nginx",
-      "image": "$NGINX_IMAGE_URI",
+      "image": "nginxdemos/hello:plain-text",
       "essential": true,
       "portMappings": [
         {
