@@ -23,6 +23,34 @@ resource "aws_lb_listener" "main" {
   ]
 }
 
+  # alb rule for cognito
+ resource "aws_lb_listener_rule" "auth" {
+   listener_arn = aws_lb_listener.main.arn
+   priority     = 100
+ 
+  action {
+    type = "authenticate-cognito"
+
+    authenticate_cognito {
+      user_pool_arn       = aws_cognito_user_pool.main.arn
+      user_pool_client_id =  aws_cognito_user_pool_client.main.id
+      user_pool_domain    = aws_cognito_user_pool_domain.main.domain
+    }
+  }
+
+ 
+   action {
+     type             = "forward"
+     target_group_arn = aws_lb_target_group.blue.arn
+   }
+ 
+   condition {
+     path_pattern {
+       values = ["/admin/*"]
+     }
+   }
+ }
+
 resource "aws_lb_target_group" "blue" {
   name        = "${var.project}-tg-blue"
   vpc_id      = aws_vpc.main.id
