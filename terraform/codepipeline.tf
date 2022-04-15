@@ -1,5 +1,6 @@
 variable "github_org" {
   type = string
+  default = "saitofjp"
 }
 
 variable "github_repository" {
