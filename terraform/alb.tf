@@ -7,13 +7,20 @@ resource "aws_lb" "main" {
 
 resource "aws_lb_listener" "main" {
   load_balancer_arn = aws_lb.main.arn
-  port              = 80
-  protocol          = "HTTP"
+
+  certificate_arn = "${aws_acm_certificate.main.arn}"
+
+  port     = "443"
+  protocol = "HTTPS"
 
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.blue.arn
   }
+
+  depends_on = [
+    aws_acm_certificate_validation.main
+  ]
 }
 
 resource "aws_lb_target_group" "blue" {
@@ -31,13 +38,19 @@ resource "aws_lb_target_group" "blue" {
 
 resource "aws_lb_listener" "test" {
   load_balancer_arn = aws_lb.main.arn
-  port              = 8080
-  protocol          = "HTTP"
+
+  certificate_arn = "${aws_acm_certificate.main.arn}"
+
+  port              = 5443
+  protocol          = "HTTPS"
 
   default_action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.green.arn
   }
+  depends_on = [
+    aws_acm_certificate_validation.main
+  ]
 }
 
 resource "aws_lb_target_group" "green" {
@@ -67,16 +80,16 @@ resource "aws_security_group" "alb" {
   }
 
   ingress {
-    from_port        = 80
-    to_port          = 80
+    from_port        = 443
+    to_port          = 443
     protocol         = "tcp"
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
 
   ingress {
-    from_port        = 8080
-    to_port          = 8080
+    from_port        = 5443
+    to_port          = 5443
     protocol         = "tcp"
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
